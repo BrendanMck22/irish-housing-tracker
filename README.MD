@@ -47,6 +47,11 @@ brew install prometheus
 pip3 install -r requirements.txt
 ```
 ### 4. Run services
+In main.py run 
+``` bash
+python3 main.py --serve-metrics
+```
+In separate terminals run 
 ``` bash
 mlflow server \
   --backend-store-uri sqlite:///mlflow.db \
