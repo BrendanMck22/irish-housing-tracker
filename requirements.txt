@@ -6,3 +6,10 @@ pyjstat
 ydata-profiling
 scikit-learn
 mlflow
+evidently
+evidently[service]
+apache-airflow
+apache-airflow[webserver,auth]
+prometheus_client
+uvicorn
+fastapi
