@@ -12,8 +12,9 @@ The project tracks **data drift**, retrains the model automatically when drift e
 ✅ Automatically logs metrics and models to **MLflow**.  
 ✅ Streams drift metrics to **Prometheus** and visualizes them in **Grafana**.  
 ✅ Hourly drift monitoring and retraining managed by **Apache Airflow**. 
-✅ Sends **automated drift alerts via email** using Grafana SMTP setup
-✅ When drift exceeds a threshold, **automated retraining** is triggered and logged via MLflow
+✅ Sends **automated drift alerts via email** using Grafana SMTP setup.
+✅ When drift exceeds a threshold, **automated retraining** is triggered and logged via MLflow.
+
 ---
 
 ## 🧩 Tech Stack
@@ -92,4 +93,3 @@ export PYTHONFAULTHANDLER=1
 
 
 **Author:** Brendan McKeown  
-**Version:** 0.2 (with email alerts & auto retraining)  
