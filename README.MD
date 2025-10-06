@@ -11,8 +11,9 @@ The project tracks **data drift**, retrains the model automatically when drift e
 ✅ Tracks model drift over time using **Evidently AI**.  
 ✅ Automatically logs metrics and models to **MLflow**.  
 ✅ Streams drift metrics to **Prometheus** and visualizes them in **Grafana**.  
-✅ Hourly drift monitoring and retraining managed by **Apache Airflow**.  
-
+✅ Hourly drift monitoring and retraining managed by **Apache Airflow**. 
+✅ Sends **automated drift alerts via email** using Grafana SMTP setup
+✅ When drift exceeds a threshold, **automated retraining** is triggered and logged via MLflow
 ---
 
 ## 🧩 Tech Stack
@@ -85,10 +86,10 @@ export PYTHONFAULTHANDLER=1
 6. Visualize trends and configure alerts in Grafana.
 
 ## Future Improvements
-* Future Improvements
-
-* Automated retraining when drift exceeds a threshold.
-
 * Web dashboard for first-time home buyers to explore data by county.
 
-* Slack/email integration for automated drift alerts.
+* Integrate a Retrieval-Augmented Generation (RAG) module to provide real-time guidance for first-time buyers based on official government sources (Revenue, CSO, gov.ie, First Home Scheme).
+
+
+**Author:** Brendan McKeown  
+**Version:** 0.2 (with email alerts & auto retraining)  
