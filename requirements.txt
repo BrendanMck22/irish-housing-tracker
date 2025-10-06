@@ -1,0 +1,8 @@
+jsonstat
+matplotlib
+pandas
+requests
+pyjstat
+ydata-profiling
+scikit-learn
+mlflow
