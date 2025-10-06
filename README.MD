@@ -11,9 +11,9 @@ The project tracks **data drift**, retrains the model automatically when drift e
 ✅ Tracks model drift over time using **Evidently AI**.  
 ✅ Automatically logs metrics and models to **MLflow**.  
 ✅ Streams drift metrics to **Prometheus** and visualizes them in **Grafana**.  
-✅ Hourly drift monitoring and retraining managed by **Apache Airflow**. 
-✅ Sends **automated drift alerts via email** using Grafana SMTP setup.
-✅ When drift exceeds a threshold, **automated retraining** is triggered and logged via MLflow.
+✅ Hourly drift monitoring and retraining managed by **Apache Airflow**.  
+✅ Sends **automated drift alerts via email** using Grafana SMTP setup.  
+✅ When drift exceeds a threshold, **automated retraining** is triggered and logged via MLflow.  
 
 ---
 
