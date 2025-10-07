@@ -64,7 +64,13 @@ mlflow server \
 prometheus --config.file=prometheus.yml
 
 brew services start grafana
-
+```
+### 5. Run airflow
+Airflow should be run outside the project directory to simulate a separate orchestration environment.  
+Details to do this are included in a note in the airflow folder. 
+  
+To run airflow:  
+``` bash
 airflow standalone
 ```
 

@@ -1,0 +1,10 @@
+This repository includes an /airflow directory containing DAG files used for data drift monitoring, report generation, and model retraining.
+
+In a production-scale MLOps setup, Airflow is typically deployed as a separate orchestration environment — often on its own server, container, 
+or cloud instance — rather than being part of the same codebase as the core model or API.
+
+The Airflow DAGs are included here for demonstration and reproducibility purposes only, to show how the orchestration layer integrates 
+with the ML components in this project (e.g., MLflow, Prometheus, and Evidently).
+
+When setting this project up, install airflow separately and make a /data folder to store the historical and recent data.
+Also add these two files to the /dags folder. 
