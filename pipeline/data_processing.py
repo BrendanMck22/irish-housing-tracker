@@ -99,7 +99,7 @@ def prepare_price_gap_dataset(
     target = encoded["gap_ratio"]
     features = encoded.drop(columns=["mean_sale_price", "median_price", "gap_ratio"])
 
-    # ✅ Export baseline and current CSVs
+    # Export baseline and current CSVs
     if export_csv:
         data_dir = os.path.expanduser("./data")
         baseline_df = prices[prices["year"] <= 2022]
