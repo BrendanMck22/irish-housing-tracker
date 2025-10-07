@@ -7,7 +7,7 @@ The project tracks **data drift**, retrains the model automatically when drift e
 
 ## ⚙️ Features
 
-✅ Predicts mean–median price gap ratios across Irish counties (2010–2023).  
+✅ Predicts sale-purchased price gap ratios across Irish counties (2010–2023).  
 ✅ Tracks model drift over time using **Evidently AI**.  
 ✅ Automatically logs metrics and models to **MLflow**.  
 ✅ Streams drift metrics to **Prometheus** and visualizes them in **Grafana**.  
@@ -76,22 +76,33 @@ export PYTHONFAULTHANDLER=1
 ```
 
 ## Typical Workflow
-1. Typical Workflow
 
-2. Train your regression model to predict the gap ratio between mean and median prices.
+1. Data from the cso is preproccessed to include gap ratio between mean sale price and median purchasing price.
 
-3. Log the model and metrics to MLflow.
+2. Regression model (RandomForrestRegression)is trained to predict the gap ratio.
 
-4. Generate a drift report comparing historical vs. new data.
+3. Log the model and metrics to MLflow. Save the results as artifacts. 
+
+4. Generate a drift report with the historical data (2010-2023).
 
 5. Expose drift metrics to Prometheus.
 
 6. Visualize trends and configure alerts in Grafana.
 
+7. Airflow is then triggered when drift is identified in more than half of the features.
+
+8. New data (2024) is added to the dataset and the model is retrained. 
+
+9. Updated drift report is added to MLflow artifacts.
+
+## Findings
+MAE score stablished across counties but R2 score saw spikes in different years due to lack of samples, especially for smaller counties. Furthur   
+data collection will be needed to improve model performance. 
 ## Future Improvements
 * Web dashboard for first-time home buyers to explore data by county.
 
-* Integrate a Retrieval-Augmented Generation (RAG) module to provide real-time guidance for first-time buyers based on official government sources (Revenue, CSO, gov.ie, First Home Scheme).
+* Expand to use more data sources - EHA01: Earnings and Housing Affordability, Revenue.ie
+
 
 
 **Author:** Brendan McKeown  

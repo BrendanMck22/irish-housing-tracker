@@ -24,6 +24,7 @@ tmp/
 temp/
 
 # MLflow artifacts and metadata
+mlflow.db
 mlruns/
 mlartifacts/
 
@@ -36,3 +37,6 @@ dist/
 # OS-specific
 Thumbs.db
 .DS_Store
+
+# Data files
+data/
