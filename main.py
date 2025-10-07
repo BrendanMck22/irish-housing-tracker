@@ -7,11 +7,11 @@ import logging
 from pathlib import Path
 from typing import Optional, Tuple
 
-from backend.data_processing import fetch_cso_dataset, prepare_price_gap_dataset
-from backend.evidently_report import DriftReportResult, build_drift_report
-from backend.metrics_server import DriftMetrics, run_metrics_server
-from backend.mlflow_logging import log_training_run
-from backend.model_training import TrainingResult, train_random_forest
+from pipeline.data_processing import fetch_cso_dataset, prepare_price_gap_dataset
+from pipeline.evidently_report import DriftReportResult, build_drift_report
+from pipeline.metrics_server import DriftMetrics, run_metrics_server
+from pipeline.mlflow_logging import log_training_run
+from pipeline.model_training import TrainingResult, train_random_forest
 
 try:
     from mlflow.exceptions import MlflowException
@@ -81,7 +81,6 @@ def run_pipeline(args: argparse.Namespace) -> Tuple[TrainingResult, Optional[str
 
     logger.info("Preparing features and target variables")
     dataset = prepare_price_gap_dataset(raw_df)
-    logger.info(dataset.features)
     logger.info("Training random forest model")
     training_result = train_random_forest(dataset.features, dataset.target, dataset.counties)
 
