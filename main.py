@@ -1,6 +1,7 @@
 """Command-line entrypoint for the Irish house price gap pipeline."""
 from __future__ import annotations
 
+import os
 import argparse
 import logging
 from pathlib import Path
@@ -47,6 +48,7 @@ def _parse_args() -> argparse.Namespace:
         default=2023,
         help="Year to treat as the current production slice for drift checks",
     )
+    # 2024 CSO data is incomplete so default to 2023 for now
     parser.add_argument(
         "--serve-metrics",
         action="store_true",
@@ -79,9 +81,9 @@ def run_pipeline(args: argparse.Namespace) -> Tuple[TrainingResult, Optional[str
 
     logger.info("Preparing features and target variables")
     dataset = prepare_price_gap_dataset(raw_df)
-
+    logger.info(dataset.features)
     logger.info("Training random forest model")
-    training_result = train_random_forest(dataset.features, dataset.target)
+    training_result = train_random_forest(dataset.features, dataset.target, dataset.counties)
 
     run_id: Optional[str] = None
     if args.skip_mlflow:
@@ -106,7 +108,19 @@ def run_pipeline(args: argparse.Namespace) -> Tuple[TrainingResult, Optional[str
     logger.info("Running Evidently drift report")
     baseline_df = dataset.prices[dataset.prices['year'] <= args.baseline_end_year]
     current_df = dataset.prices[dataset.prices['year'] == args.current_year]
+    # send to airflow 
+    data_dir = os.path.expanduser("~/airflow/data")
+    os.makedirs(data_dir, exist_ok=True)
 
+    # Define full file paths
+    reference_path = os.path.join(data_dir, "housing_ref.csv")
+    current_path = os.path.join(data_dir, "housing_curr.csv")
+
+    # Export directly into Airflow’s data folder
+    baseline_df.to_csv(reference_path, index=False)
+    current_df.to_csv(current_path, index=False)
+
+    
     drift_result: Optional[DriftReportResult]
     if baseline_df.empty or current_df.empty:
         logger.warning("Insufficient data to compute drift report (baseline or current slice empty)")

@@ -8,6 +8,7 @@ from typing import Optional
 import mlflow
 import mlflow.sklearn
 import pandas as pd
+from mlflow.data.pandas_dataset import from_pandas
 
 from .model_training import TrainingResult
 
@@ -61,6 +62,8 @@ def log_training_run(
             mlflow.log_metrics({f"avg_gap_{county}": float(gap) for county, gap in mean_gap_by_county.items()})
 
             training_result.metrics_per_county_year.to_csv(metrics_path, index=False)
+            dataset = from_pandas(prices, name="price_gap_dataset")
+            mlflow.log_input(dataset, context="training")
             mlflow.log_artifact(str(metrics_path))
 
             mlflow.sklearn.log_model(
@@ -69,6 +72,9 @@ def log_training_run(
                 input_example=training_result.input_example,
                 signature=training_result.signature,
             )
+            os.makedirs(os.path.expanduser("~/airflow/data"), exist_ok=True)
+            with open(os.path.expanduser("~/airflow/data/current_run_id.txt"), "w") as f:
+                f.write(run_id)
     finally:
         if metrics_path.exists():
             metrics_path.unlink()

@@ -1,6 +1,6 @@
-"""Deprecated entrypoint maintained for backwards compatibility.
+"""Deprecated entrypoint maintained for backwards compatibility for evidently.
 
-Prefer using backend.metrics_server instead."""
+Using backend.metrics_server instead."""
 from __future__ import annotations
 
 from .metrics_server import DriftMetrics, create_metrics_app, run_metrics_server

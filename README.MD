@@ -64,6 +64,8 @@ mlflow server \
 prometheus --config.file=prometheus.yml
 
 brew services start grafana
+
+airflow standalone
 ```
 
 ## Note: If running on Mac0S, export these variables in terminal

@@ -13,9 +13,9 @@ from sklearn.model_selection import train_test_split
 
 @dataclass
 class TrainingConfig:
-    test_size: float = 0.2
+    test_size: float = 0.3
     random_state: int = 42
-    n_estimators: int = 200
+    n_estimators: int = 500
 
 
 @dataclass
@@ -36,6 +36,7 @@ class TrainingResult:
 def train_random_forest(
     X: pd.DataFrame,
     y: pd.Series,
+    counties: pd.DataFrame,
     *,
     config: TrainingConfig | None = None,
 ) -> TrainingResult:
@@ -43,7 +44,7 @@ def train_random_forest(
     cfg = config or TrainingConfig()
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=cfg.test_size, random_state=cfg.random_state
+        X, y, test_size=cfg.test_size, random_state=cfg.random_state, stratify=counties
     )
 
     model = RandomForestRegressor(n_estimators=cfg.n_estimators, random_state=cfg.random_state)

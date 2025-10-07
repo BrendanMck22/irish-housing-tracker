@@ -33,14 +33,11 @@ def build_drift_report(
 
     output_path = Path(output_path)
     output_report.save_html(str(output_path))
-    report_dict = output_report.dict()
 
-    # if hasattr(output_report, "as_dict"):
-    #     report_dict = output_report.dict()
-    # elif hasattr(report, "dict"):
-    #     report_dict = output_report.dict()
-    # else:
-    #     raise AttributeError("Evidently report object does not expose as_dict/dict serialization")
+    if hasattr(output_report, "dict"):
+        report_dict = output_report.dict()
+    else:
+        raise AttributeError("Evidently report object does not expose as_dict/dict serialization")
     drift_summary = next(
         (
             metric
