@@ -9,7 +9,7 @@ from typing import Optional, Tuple
 
 from pipeline.data_processing import fetch_cso_dataset, prepare_price_gap_dataset
 from pipeline.evidently_report import DriftReportResult, build_drift_report
-from pipeline.metrics_server import DriftMetrics, run_metrics_server
+from pipeline.metrics_server import run_metrics_server
 from pipeline.mlflow_logging import log_training_run
 from pipeline.model_training import TrainingResult, train_random_forest
 
@@ -151,20 +151,17 @@ def run_pipeline(args: argparse.Namespace) -> Tuple[TrainingResult, Optional[str
         
 
     if args.serve_metrics:
-        if drift_result is None:
-            logger.warning("Skipping metrics server because drift results are unavailable")
+        if run_id is None:
+            logger.warning("Skipping metrics server because MLflow run ID is unavailable")
         else:
             logger.info(
-                "Starting metrics server on %s:%d",
+                "Starting metrics server on %s:%d (MLflow run=%s)",
                 args.metrics_host,
                 args.metrics_port,
+                run_id,
             )
-            drift_metrics = DriftMetrics(
-                drift_count=drift_result.drift_count,
-                drift_share=drift_result.drift_share,
-            )            
             run_metrics_server(
-                drift_metrics,
+                run_id=run_id,
                 host=args.metrics_host,
                 port=args.metrics_port,
                 log_level=args.log_level.lower(),
