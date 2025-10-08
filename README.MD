@@ -89,7 +89,7 @@ export PYTHONFAULTHANDLER=1
 
 3. Log the model and metrics to MLflow. Save the results as artifacts. 
 
-4. Generate a drift report with the historical data (2010-2023).
+4. Generate a drift report with the historical data (2010-2016).
 
 5. Expose drift metrics to Prometheus.
 
@@ -97,9 +97,9 @@ export PYTHONFAULTHANDLER=1
 
 7. Airflow is then triggered when drift is identified in more than half of the features.
 
-8. New data (2024) is added to the dataset and the model is retrained. 
+8. New data (2017-2023) is added to the dataset and the model is retrained. 
 
-9. Updated drift report is added to MLflow artifacts.
+9. Updated drift report is added to MLflow artifacts with updated drift metrics reflected in grafana.
 
 ## Findings
 MAE score stablished across counties but R2 score saw spikes in different years due to lack of samples, especially for smaller counties. Furthur   
