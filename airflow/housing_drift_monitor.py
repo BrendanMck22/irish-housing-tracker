@@ -33,10 +33,10 @@ MLFLOW_EXPERIMENT = "irish_housing_price_gap"
 DRIFT_THRESHOLD = 0.5
 DATA_DIR = os.path.expanduser("~/airflow/data")
 
-REFERENCE_FILE = os.path.join(DATA_DIR, "housing_ref.csv")    # 2010–2022
-CURRENT_FILE = os.path.join(DATA_DIR, "housing_curr.csv")     # 2023
+REFERENCE_FILE = os.path.join(DATA_DIR, "housing_ref.csv")    # 2010–2016
+CURRENT_FILE = os.path.join(DATA_DIR, "housing_curr.csv")     # 2017 - 2023
 LATEST_FILE = os.path.join(DATA_DIR, "latest_housing_curr.csv")  # new/latest dataset
-REPORT_PATH = os.path.join(DATA_DIR, "housing_drift_report.html")
+REPORT_PATH = os.path.join(DATA_DIR, "housing_drift_report_new.html")
 
 mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 
@@ -89,19 +89,36 @@ def generate_drift_report():
         os.makedirs(DATA_DIR, exist_ok=True)
         ref_df = pd.read_csv(REFERENCE_FILE)
         curr_df = pd.read_csv(CURRENT_FILE)
-
+        features_to_monitor_ref = [col for col in ref_df.columns if col != "year"]
+        features_to_monitor_curr = [col for col in curr_df.columns if col != "year"]
         # Generate drift report
         report = Report(metrics=[DataDriftPreset()])
-        report_eval = report.run(reference_data=ref_df, current_data=curr_df)
+        report_eval = report.run(reference_data=ref_df[features_to_monitor_ref], current_data=ref_df[features_to_monitor_ref])
         report_eval.save_html(REPORT_PATH)
-        print(f"✅ Drift report saved at {REPORT_PATH}")
+        # print(f"✅ Drift report saved at {REPORT_PATH}")
+        report_dict = report_eval.dict()
+        # --- Extract drift summary ---
+        drift_summary = next(
+            (m for m in report_dict["metrics"] if m["metric_id"].startswith("DriftedColumnsCount")),
+            None
+        )
 
+        if drift_summary:
+            drift_count = drift_summary["value"]["count"]
+            drift_share = drift_summary["value"]["share"]
+        else:
+            drift_count = drift_share = 0
         # Log to MLflow
         run_id = get_latest_run_id()
+        print(f"drift share is {drift_share} and drift count is {drift_count}")
         mlflow.set_experiment(MLFLOW_EXPERIMENT)
         if run_id:
             with mlflow.start_run(run_id=run_id):
                 mlflow.log_artifact(REPORT_PATH, artifact_path="drift_reports")
+                mlflow.log_metric("drift_count", drift_count)
+                mlflow.log_metric("drift_share", drift_share)
+
+
         else:
             with mlflow.start_run(run_name="Drift_Report_Run"):
                 mlflow.log_artifact(REPORT_PATH, artifact_path="drift_reports")
