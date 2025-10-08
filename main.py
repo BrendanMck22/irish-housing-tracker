@@ -31,24 +31,6 @@ def _parse_args() -> argparse.Namespace:
         action="store_true",
         help="Skip logging results to MLflow",
     )
-    # parser.add_argument(
-    #     "--drift-report-path",
-    #     default="housing_drift_report.html",
-    #     help="Path to store the Evidently drift report HTML",
-    # )
-    # parser.add_argument(
-    #     "--baseline-end-year",
-    #     type=int,
-    #     default=2022,
-    #     help="Final year to include in the drift baseline dataset",
-    # )
-    # parser.add_argument(
-    #     "--current-year",
-    #     type=int,
-    #     default=2024,
-    #     help="Year to treat as the current production slice for drift checks",
-    # )
-    # 2024 CSO data is incomplete so default to 2023 for now
     parser.add_argument(
         "--serve-metrics",
         action="store_true",
