@@ -47,9 +47,9 @@ def get_latest_run_id():
     if os.path.exists(run_id_path):
         with open(run_id_path, "r") as f:
             run_id = f.read().strip()
-            print(f"🔗 Found existing MLflow run ID: {run_id}")
+            print(f"Found existing MLflow run ID: {run_id}")
             return run_id
-    print("⚠️ No saved run_id found. Will create a new MLflow run.")
+    print("Warning: No saved run_id found. Will create a new MLflow run.")
     return None
 
 
@@ -61,7 +61,7 @@ def fetch_latest_data():
     os.makedirs(DATA_DIR, exist_ok=True)
     df_latest = fetch_and_preprocess_data()
     df_latest.to_csv(LATEST_FILE, index=False)
-    print(f"💾 Latest housing data saved to {LATEST_FILE}")
+    print(f"Latest housing data saved to {LATEST_FILE}")
     return LATEST_FILE
 
 
@@ -72,13 +72,13 @@ def check_drift() -> float:
         resp = requests.get(PROMETHEUS_URL, params={"query": "evidently_share_drifted_features"})
         data = resp.json().get("data", {}).get("result", [])
         if not data:
-            print("⚠️ No drift metric found.")
+            print("Warning: No drift metric found.")
             return 0.0
         drift_value = float(data[0]["value"][1])
-        print(f"📊 Current drift share: {drift_value:.3f}")
+        print(f"Current drift share: {drift_value:.3f}")
         return drift_value
     except Exception as e:
-        print(f"❌ Error fetching drift: {e}")
+        print(f"Error fetching drift: {e}")
         return 0.0
 
 
@@ -95,7 +95,7 @@ def generate_drift_report():
         report = Report(metrics=[DataDriftPreset()])
         report_eval = report.run(reference_data=ref_df[features_to_monitor_ref], current_data=ref_df[features_to_monitor_ref])
         report_eval.save_html(REPORT_PATH)
-        # print(f"✅ Drift report saved at {REPORT_PATH}")
+        # print(f"Drift report saved at {REPORT_PATH}")
         report_dict = report_eval.dict()
         # --- Extract drift summary ---
         drift_summary = next(
@@ -123,15 +123,15 @@ def generate_drift_report():
             with mlflow.start_run(run_name="Drift_Report_Run"):
                 mlflow.log_artifact(REPORT_PATH, artifact_path="drift_reports")
 
-        print("📊 Drift report logged to MLflow successfully.")
+        print("Drift report logged to MLflow successfully.")
     except Exception as e:
-        print(f"❌ Error generating drift report: {e}")
+        print(f"Error generating drift report: {e}")
 
 
 @task
 def retrain_model():
     """Retrain the ML model using the latest dataset and log to MLflow."""
-    print("🧠 Starting model retraining...")
+    print("Starting model retraining...")
     df = pd.read_csv(LATEST_FILE)
 
     # Encode categorical features
@@ -148,7 +148,7 @@ def retrain_model():
     mae = mean_absolute_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
 
-    print(f"✅ Retrained model performance: MAE={mae:.4f}, R2={r2:.4f}")
+    print(f"Retrained model performance: MAE={mae:.4f}, R2={r2:.4f}")
 
     # Log retraining results
     mlflow.set_experiment(MLFLOW_EXPERIMENT)
@@ -157,13 +157,13 @@ def retrain_model():
         mlflow.log_metric("R2_retrain", r2)
         mlflow.sklearn.log_model(model, artifact_path="model", registered_model_name="HousingPriceGapPredictor")
 
-    print("📦 New model retrained and logged to MLflow successfully.")
+    print("New model retrained and logged to MLflow successfully.")
 
 
 @task
 def decide_and_retrain(drift_value: float):
     """Decide whether to retrain based on drift threshold."""
-    print(f"📈 Drift value received: {drift_value}")
+    print(f"Drift value received: {drift_value}")
     mlflow.set_experiment(MLFLOW_EXPERIMENT)
 
     run_id = get_latest_run_id()
@@ -171,11 +171,11 @@ def decide_and_retrain(drift_value: float):
         with mlflow.start_run(run_id=run_id):
             mlflow.log_metric("drift_share", drift_value)
             if drift_value > DRIFT_THRESHOLD:
-                print("🚨 Drift above threshold — retraining.")
+                print("Drift above threshold — retraining.")
                 retrain_model()
                 mlflow.log_param("triggered_by", f"drift_share>{DRIFT_THRESHOLD}")
             else:
-                print("✅ Drift stable — no retraining required.")
+                print("Drift stable — no retraining required.")
                 mlflow.log_param("triggered_by", "stable_drift")
     else:
         with mlflow.start_run(run_name="DriftCheck_Run"):

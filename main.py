@@ -15,7 +15,7 @@ from pipeline.model_training import TrainingResult, train_random_forest
 
 try:
     from mlflow.exceptions import MlflowException
-except Exception:  # pragma: no cover - soft dependency guard
+except Exception:
     MlflowException = Exception
 
 

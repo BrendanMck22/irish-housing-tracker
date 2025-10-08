@@ -10,13 +10,13 @@ import prometheus_client
 from prometheus_client import CollectorRegistry, Gauge
 import uvicorn
 
-try:  # pragma: no cover - guarded optional dependency
+try:
     import mlflow
     from mlflow.exceptions import MlflowException
     from mlflow.tracking import MlflowClient
-except Exception:  # pragma: no cover - fallback if mlflow missing
-    mlflow = None  # type: ignore[assignment]
-    MlflowClient = None  # type: ignore[assignment]
+except Exception:
+    mlflow = None
+    MlflowClient = None
 
     class MlflowException(Exception):
         """Fallback MlflowException when mlflow is unavailable."""
@@ -31,7 +31,7 @@ class DriftMetrics:
 
 
 def _get_mlflow_client(tracking_uri: Optional[str]) -> MlflowClient:
-    if MlflowClient is None:  # pragma: no cover - dependency guard
+    if MlflowClient is None:
         raise RuntimeError("mlflow is required to fetch drift metrics but is not installed.")
     kwargs = {}
     if tracking_uri:
@@ -43,7 +43,7 @@ def _fetch_drift_metrics(run_id: str, tracking_uri: Optional[str]) -> DriftMetri
     client = _get_mlflow_client(tracking_uri)
     try:
         run = client.get_run(run_id)
-    except MlflowException as exc:  # pragma: no cover - network/service failure
+    except MlflowException as exc:
         logger.warning("Failed to fetch drift metrics for MLflow run %s: %s", run_id, exc)
         return DriftMetrics(drift_count=0.0, drift_share=0.0)
 
