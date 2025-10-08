@@ -23,13 +23,16 @@ def build_drift_report(
     baseline_df: pd.DataFrame,
     current_df: pd.DataFrame,
     *,
-    output_path: Path | str = "housing_drift_report.html",
+    output_path: Path | str = "housing_drift_report_old.html",
 ) -> DriftReportResult:
     """Run an Evidently data drift report and persist the HTML artefact."""
     report = Report([
     DataDriftPreset()
     ])
-    output_report = report.run(reference_data=baseline_df, current_data=current_df)
+    features_to_monitor_baseline = [col for col in baseline_df.columns if col != "year"]
+    features_to_monitor_current = [col for col in current_df.columns if col != "year"]
+
+    output_report = report.run(reference_data=baseline_df[features_to_monitor_baseline], current_data=current_df[features_to_monitor_current])
 
     output_path = Path(output_path)
     output_report.save_html(str(output_path))

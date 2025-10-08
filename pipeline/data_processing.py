@@ -75,7 +75,7 @@ def prepare_price_gap_dataset(
     *,
     min_year: Optional[int] = 2010,
     max_year: Optional[int] = 2023,
-    export_csv: bool = True,
+    # export_csv: bool = True,
 ) -> PriceGapDataset:
     """Prepare features and targets for modelling the price gap.
     
@@ -83,9 +83,9 @@ def prepare_price_gap_dataset(
     """
     cleaned = _clean_raw_dataset(raw_df)
     prices = _pivot_price_stats(cleaned)
-
     prices["gap_ratio"] = prices["mean_sale_price"] / prices["median_price"]
     prices["year"] = pd.to_numeric(prices["year"], errors="coerce")
+    # prices =  prices[(prices["year"] >= 2010) & (prices["year"] <= 2016)]
 
     if min_year is not None:
         prices = prices[prices["year"] >= min_year]
@@ -99,20 +99,20 @@ def prepare_price_gap_dataset(
     target = encoded["gap_ratio"]
     features = encoded.drop(columns=["mean_sale_price", "median_price", "gap_ratio"])
 
-    # Export baseline and current CSVs
-    if export_csv:
-        data_dir = os.path.expanduser("./data")
-        baseline_df = prices[prices["year"] <= 2022]
-        current_df = prices[prices["year"] == 2023]
+    # Export baseline and current CSVs for drift report
+    # if export_csv:
+    #     data_dir = os.path.expanduser("./data")
+    #     baseline_df = prices[(prices["year"] >= 2010) & (prices["year"] <= 2016)] # early market
+    #     current_df = prices[(prices["year"] >= 2017) & (prices["year"] <= 2024)]  # recent market
 
-        baseline_path = os.path.join(data_dir, "housing_ref.csv")
-        current_path = os.path.join(data_dir, "housing_curr.csv")
+    #     baseline_path = os.path.join(data_dir, "housing_ref.csv")
+    #     current_path = os.path.join(data_dir, "housing_curr.csv")
 
-        baseline_df.to_csv(baseline_path, index=False)
-        current_df.to_csv(current_path, index=False)
+    #     baseline_df.to_csv(baseline_path, index=False)
+    #     current_df.to_csv(current_path, index=False)
 
-        print(f"Saved baseline data → {baseline_path}")
-        print(f"Saved current data → {current_path}")
+    #     print(f"Saved baseline data → {baseline_path}")
+    #     print(f"Saved current data → {current_path}")
 
     return PriceGapDataset(
         prices=prices.reset_index(drop=True),
