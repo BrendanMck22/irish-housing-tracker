@@ -47,7 +47,7 @@ def fetch_and_preprocess_data(save_to: str | None = None) -> pd.DataFrame:
 
     df_prices['gap_ratio'] = df_prices['mean_sale_price'] / df_prices['median_price']
     df_prices['year'] = pd.to_numeric(df_prices['year'], errors='coerce')
-    df_prices = df_prices[(df_prices['year'] >= 2010) & (df_prices['year'] <= df_prices['year'].max())]
+    df_prices = df_prices[(df_prices['year'] >= 2017) & (df_prices['year'] <= 2023)]
     return df_prices
 
 

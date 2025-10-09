@@ -29,12 +29,10 @@ from preprocess_data import fetch_and_preprocess_data
 # --- CONFIG ---
 PROMETHEUS_URL = "http://localhost:9090/api/v1/query"
 MLFLOW_TRACKING_URI = "http://127.0.0.1:5000"
-MLFLOW_EXPERIMENT = "irish_housing_price_gap"
+MLFLOW_EXPERIMENT = "irish_housing_price_gap" # change to MLFLOW_EXPERIMENT = "irish_housing_price_gap_demo" if using sandbox
 DRIFT_THRESHOLD = 0.5
 DATA_DIR = os.path.expanduser("~/airflow/data")
 
-REFERENCE_FILE = os.path.join(DATA_DIR, "housing_ref.csv")    # 2010–2016
-CURRENT_FILE = os.path.join(DATA_DIR, "housing_curr.csv")     # 2017 - 2023
 LATEST_FILE = os.path.join(DATA_DIR, "latest_housing_curr.csv")  # new/latest dataset
 REPORT_PATH = os.path.join(DATA_DIR, "housing_drift_report_new.html")
 
@@ -87,13 +85,12 @@ def generate_drift_report():
     """Generate Evidently HTML drift report and log as MLflow artifact."""
     try:
         os.makedirs(DATA_DIR, exist_ok=True)
-        ref_df = pd.read_csv(REFERENCE_FILE)
-        curr_df = pd.read_csv(CURRENT_FILE)
-        features_to_monitor_ref = [col for col in ref_df.columns if col != "year"]
-        features_to_monitor_curr = [col for col in curr_df.columns if col != "year"]
+        ref_df = pd.read_csv(LATEST_FILE)
+        curr_df = pd.read_csv(LATEST_FILE) # comparing same datasets as it has been updated
+        features_to_monitor = [col for col in ref_df.columns if col != "year"]
         # Generate drift report
         report = Report(metrics=[DataDriftPreset()])
-        report_eval = report.run(reference_data=ref_df[features_to_monitor_ref], current_data=ref_df[features_to_monitor_ref])
+        report_eval = report.run(reference_data=ref_df[features_to_monitor], current_data=curr_df[features_to_monitor])
         report_eval.save_html(REPORT_PATH)
         # print(f"Drift report saved at {REPORT_PATH}")
         report_dict = report_eval.dict()
@@ -107,7 +104,7 @@ def generate_drift_report():
             drift_count = drift_summary["value"]["count"]
             drift_share = drift_summary["value"]["share"]
         else:
-            drift_count = drift_share = 0
+            drift_count = drift_share = 0.0
         # Log to MLflow
         run_id = get_latest_run_id()
         print(f"drift share is {drift_share} and drift count is {drift_count}")
@@ -169,14 +166,11 @@ def decide_and_retrain(drift_value: float):
     run_id = get_latest_run_id()
     if run_id:
         with mlflow.start_run(run_id=run_id):
-            mlflow.log_metric("drift_share", drift_value)
             if drift_value > DRIFT_THRESHOLD:
                 print("Drift above threshold — retraining.")
                 retrain_model()
-                mlflow.log_param("triggered_by", f"drift_share>{DRIFT_THRESHOLD}")
             else:
                 print("Drift stable — no retraining required.")
-                mlflow.log_param("triggered_by", "stable_drift")
     else:
         with mlflow.start_run(run_name="DriftCheck_Run"):
             mlflow.log_metric("drift_share", drift_value)
